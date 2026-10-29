@@ -112,7 +112,7 @@ async fn main() -> anyhow::Result<()> {
         .layer(middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind(("0.0.0.0", port)).await?;
+    let listener = tokio::net::TcpListener::bind(("::", port)).await?;
     info!("unbarred engine listening on :{port}");
     axum::serve(listener, app).await?;
     Ok(())

@@ -68,7 +68,11 @@ export function normalizeUrl(raw: string): string {
     });
   }
   url.hash = "";
-  return url.toString().replace(/\/$/, "");
+  // Keep a path trailing slash: it is significant for the page's own relative
+  // links and stylesheets (`/fixture/` vs `/fixture`). The root may drop it.
+  const serialized = url.toString();
+  if (url.pathname !== "/" && url.pathname.endsWith("/")) return serialized;
+  return serialized.replace(/\/$/, "");
 }
 
 export function siteName(raw: string): string {
