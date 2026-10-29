@@ -116,5 +116,10 @@
       "coreVersion": "0.222.1",
       "shape": "standalone"
     }
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@agent-native/core@0.222.1": "patches/@agent-native__core@0.222.1.patch"
+    }
   }
 }

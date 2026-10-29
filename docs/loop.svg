@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-labelledby="t d">
+  <title id="t">The find, fix, prove loop</title>
+  <desc id="d">Audit, cluster, human-approved fixes, independent re-scan, evidence ledger.</desc>
+  <rect width="1200" height="360" fill="#f6f1e7"/>
+  <text x="56" y="58" font-family="Georgia, serif" font-size="30" fill="#14120f">Find it. Fix it. Prove it.</text>
+  <text x="56" y="82" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="1.8" fill="#8a7a63">THE LOOP IS THE PRODUCT</text>
+
+  <g font-family="ui-monospace, Menlo, monospace">
+    <rect x="56" y="128" width="196" height="124" fill="#fbf8f2" stroke="#14120f"/>
+    <text x="76" y="156" font-size="10" letter-spacing="1.4" fill="#7a2e1f">01 · RENDER</text>
+    <text x="76" y="184" font-family="Georgia, serif" font-size="21" fill="#14120f">Audit the page</text>
+    <text x="76" y="208" font-size="9.5" fill="#4a433a">headless Chrome</text>
+    <text x="76" y="224" font-size="9.5" fill="#4a433a">pinned axe-core</text>
+    <text x="76" y="240" font-size="9.5" fill="#4a433a">real bounding boxes</text>
+
+    <rect x="292" y="128" width="196" height="124" fill="#fbf8f2" stroke="#14120f"/>
+    <text x="312" y="156" font-size="10" letter-spacing="1.4" fill="#7a2e1f">02 · CLUSTER</text>
+    <text x="312" y="184" font-family="Georgia, serif" font-size="21" fill="#14120f">Make it legible</text>
+    <text x="312" y="208" font-size="9.5" fill="#4a433a">patterns, not 50 rows</text>
+    <text x="312" y="224" font-size="9.5" fill="#4a433a">impact + page + selector</text>
+    <text x="312" y="240" font-size="9.5" fill="#4a433a">computed vs judgment</text>
+
+    <rect x="528" y="128" width="196" height="124" fill="#14120f"/>
+    <text x="548" y="156" font-size="10" letter-spacing="1.4" fill="#b9a58c">03 · HUMAN</text>
+    <text x="548" y="184" font-family="Georgia, serif" font-size="21" fill="#f6f1e7">Approve the fix</text>
+    <text x="548" y="208" font-size="9.5" fill="#d8cbb4">alt text · labels</text>
+    <text x="548" y="224" font-size="9.5" fill="#d8cbb4">language · severity calls</text>
+    <text x="548" y="240" font-size="9.5" fill="#2fa36b">approval gate · ledger</text>
+
+    <rect x="764" y="128" width="196" height="124" fill="#fbf8f2" stroke="#14120f"/>
+    <text x="784" y="156" font-size="10" letter-spacing="1.4" fill="#7a2e1f">04 · PROVE</text>
+    <text x="784" y="184" font-family="Georgia, serif" font-size="21" fill="#14120f">Re-scan again</text>
+    <text x="784" y="208" font-size="9.5" fill="#4a433a">patch the fresh render</text>
+    <text x="784" y="224" font-size="9.5" fill="#4a433a">independent axe pass</text>
+    <text x="784" y="240" font-size="9.5" fill="#4a433a">per-element verification</text>
+
+    <rect x="1000" y="128" width="144" height="124" fill="#fbf8f2" stroke="#2fa36b"/>
+    <text x="1020" y="156" font-size="10" letter-spacing="1.4" fill="#2fa36b">05 · RECORD</text>
+    <text x="1020" y="184" font-family="Georgia, serif" font-size="21" fill="#14120f">Evidence</text>
+    <text x="1020" y="208" font-size="9.5" fill="#4a433a">JSON · CSV</text>
+    <text x="1020" y="224" font-size="9.5" fill="#4a433a">actor + time</text>
+    <text x="1020" y="240" font-size="9.5" fill="#2fa36b">not a certificate</text>
+  </g>
+
+  <defs><marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#14120f"/></marker></defs>
+  <g stroke="#14120f" stroke-width="1.4" marker-end="url(#b)">
+    <path d="M252 190H282"/><path d="M488 190H518"/><path d="M724 190H754"/><path d="M960 190H990"/>
+  </g>
+  <path d="M1072 252V296H154V252" stroke="#2fa36b" stroke-width="1.2" fill="none" stroke-dasharray="5 4" marker-end="url(#b)"/>
+  <text x="580" y="316" font-family="ui-monospace, Menlo, monospace" font-size="9.5" letter-spacing="1" fill="#2fa36b">SITES CHANGE · RE-AUDIT · THE LEDGER GROWS</text>
+
+  <rect x="56" y="332" width="1088" height="1" fill="#d8cbb4"/>
+  <text x="56" y="350" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8a7a63">Automated checks cover a subset of WCAG. Manual checks remain in the record. Unbarred never claims compliance.</text>
+</svg>

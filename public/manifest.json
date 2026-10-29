@@ -1,20 +1,13 @@
 {
-  "name": "Agent Native",
-  "short_name": "Agent Native",
-  "description": "Workspace app for Agent Native.",
-  "start_url": "./home",
-  "background_color": "#111111",
-  "theme_color": "#18181B",
+  "name": "Unbarred",
+  "short_name": "Unbarred",
+  "description": "Accessibility remediation workspace: find it, fix it, prove it.",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#f6f1e7",
+  "theme_color": "#f6f1e7",
   "icons": [
-    {
-      "src": "icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml"
-    },
-    {
-      "src": "icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml"
-    }
+    { "src": "/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" },
+    { "src": "/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml" }
   ]
 }

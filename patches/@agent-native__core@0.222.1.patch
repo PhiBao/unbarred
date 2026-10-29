@@ -1,0 +1,13 @@
+diff --git a/dist/agent/engine/translate-ai-sdk.js b/dist/agent/engine/translate-ai-sdk.js
+index d25ab03c91cd597941745231153e02710479cf9f..61acad572a4ae0ab43662c729cce2f890947a8e3 100644
+--- a/dist/agent/engine/translate-ai-sdk.js
++++ b/dist/agent/engine/translate-ai-sdk.js
+@@ -17,7 +17,7 @@ export function engineToolsToAISDK(tools, jsonSchema, toolNameMap = createProvid
+             description: tool.description,
+             inputSchema: jsonSchema ? jsonSchema(rawSchema) : rawSchema,
+             // Gateways may normalize an omitted flag into required optional fields.
+-            strict: false,
++            strict: true,
+         };
+     }
+     return result;

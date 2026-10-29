@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="1200" height="640" role="img" aria-labelledby="title desc">
+  <title id="title">Unbarred architecture</title>
+  <desc id="desc">The Agent-Native app owns product state and the shared action layer. A Rust engine owns headless Chrome, axe-core, patching, and re-scanning.</desc>
+  <rect width="1200" height="640" fill="#f6f1e7"/>
+  <g fill="none" stroke="#d8cbb4"><path d="M0 1.5H1200M0 638.5H1200"/></g>
+  <text x="64" y="74" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#14120f">Unbarred architecture</text>
+  <text x="64" y="100" font-family="ui-monospace, Menlo, monospace" font-size="11" letter-spacing="2" fill="#8a7a63">THE APP OWNS STATE · THE ENGINE OWNS THE BROWSER</text>
+
+  <!-- browser -->
+  <rect x="64" y="154" width="230" height="128" fill="#fbf8f2" stroke="#14120f"/>
+  <text x="84" y="184" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="1.6" fill="#7a2e1f">01 · CLIENT</text>
+  <text x="84" y="212" font-family="Georgia, serif" font-size="22" fill="#14120f">Workbench</text>
+  <text x="84" y="236" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#4a433a">pins · inspector · ledger</text>
+  <text x="84" y="254" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#4a433a">agent chat · context selection</text>
+
+  <!-- actions -->
+  <rect x="360" y="132" width="286" height="172" fill="#14120f"/>
+  <text x="382" y="162" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="1.6" fill="#b9a58c">02 · SHARED ACTION LAYER</text>
+  <text x="382" y="192" font-family="Georgia, serif" font-size="24" fill="#f6f1e7">Actions (TypeScript)</text>
+  <text x="382" y="218" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#d8cbb4">defineAction · Zod schemas</text>
+  <text x="382" y="238" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#d8cbb4">UI · agent · HTTP · MCP · CLI</text>
+  <text x="382" y="258" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#d8cbb4">approval gates · write receipts</text>
+  <text x="382" y="284" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#2fa36b">one contract, every surface</text>
+
+  <!-- postgres -->
+  <rect x="360" y="374" width="286" height="112" fill="#fbf8f2" stroke="#d8cbb4"/>
+  <text x="382" y="404" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="1.6" fill="#7a2e1f">03 · SOURCE OF TRUTH</text>
+  <text x="382" y="432" font-family="Georgia, serif" font-size="22" fill="#14120f">PostgreSQL</text>
+  <text x="382" y="456" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#4a433a">audits · pages · issues · fixes</text>
+  <text x="382" y="474" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#4a433a">evidence ledger · manual checks</text>
+
+  <!-- engine -->
+  <rect x="714" y="340" width="260" height="146" fill="#fbf8f2" stroke="#14120f"/>
+  <text x="736" y="370" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="1.6" fill="#7a2e1f">04 · AUDIT ENGINE</text>
+  <text x="736" y="398" font-family="Georgia, serif" font-size="22" fill="#14120f">Rust · Axum</text>
+  <text x="736" y="422" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#4a433a">crawl · render · cluster</text>
+  <text x="736" y="440" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#4a433a">patch · independent re-scan</text>
+  <text x="736" y="462" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#2fa36b">untyped CDP · Chrome 149-safe</text>
+
+  <!-- chrome -->
+  <rect x="714" y="524" width="260" height="76" fill="#fbf8f2" stroke="#d8cbb4"/>
+  <text x="736" y="552" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="1.6" fill="#7a2e1f">05 · BROWSER</text>
+  <text x="736" y="578" font-family="Georgia, serif" font-size="19" fill="#14120f">Headless Chrome + axe-core 4.10.2</text>
+
+  <!-- target -->
+  <rect x="1030" y="196" width="130" height="128" fill="#fbf8f2" stroke="#d8cbb4"/>
+  <text x="1048" y="226" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="1.4" fill="#7a2e1f">TARGET</text>
+  <text x="1048" y="252" font-family="Georgia, serif" font-size="19" fill="#14120f">Public</text>
+  <text x="1048" y="274" font-family="Georgia, serif" font-size="19" fill="#14120f">web page</text>
+  <text x="1048" y="300" font-family="ui-monospace, Menlo, monospace" font-size="9.5" fill="#4a433a">http(s) only</text>
+
+  <!-- arrows -->
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#14120f"/></marker></defs>
+  <path d="M294 206H350" stroke="#14120f" stroke-width="1.4" marker-end="url(#a)"/>
+  <path d="M503 304V366" stroke="#14120f" stroke-width="1.4" marker-end="url(#a)"/>
+  <path d="M646 218H690V400H706" stroke="#14120f" stroke-width="1.4" marker-end="url(#a)" fill="none"/>
+  <path d="M844 486V516" stroke="#14120f" stroke-width="1.4" marker-end="url(#a)"/>
+  <path d="M974 560H1040V332" stroke="#14120f" stroke-width="1.4" marker-end="url(#a)" fill="none"/>
+  <path d="M1095 324V400H982" stroke="#2fa36b" stroke-width="1.4" marker-end="url(#a)" stroke-dasharray="4 4" fill="none"/>
+
+  <text x="300" y="196" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8a7a63">useActionQuery</text>
+  <text x="512" y="344" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8a7a63">Drizzle</text>
+  <text x="650" y="212" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8a7a63">internal HTTP</text>
+  <text x="986" y="414" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#2fa36b">re-scan</text>
+</svg>

@@ -1,0 +1,10 @@
+node_modules
+.output
+.git
+.env
+.env.*
+data
+docs
+fixtures
+engine
+*.log

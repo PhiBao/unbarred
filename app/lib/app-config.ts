@@ -1,5 +1,5 @@
-const rawAppName = "agent-native";
-const rawAppTitle = "Agent Native";
+const rawAppName = "unbarred";
+const rawAppTitle = "Unbarred";
 
 const APP_NAME_PLACEHOLDER = "{" + "{APP_NAME}}";
 const APP_TITLE_PLACEHOLDER = "{" + "{APP_TITLE}}";

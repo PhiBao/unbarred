@@ -4,6 +4,14 @@
     "firstRun": "off"
   },
   "doctor": {
-    "failOnBuild": false
+    "failOnBuild": false,
+    "dbToolScopingDenylist": {
+      "pages": "Child of audits; every read joins audits and filters owner_email. Snapshots are never exposed without that join.",
+      "clusters": "Child of audits; reads always filter by an owned audit id.",
+      "issues": "Child of audits; reads always filter by an owned audit id.",
+      "fixes": "Child of audits; reads always filter by an owned audit id.",
+      "evidence": "Child of audits; the ledger is only read through an owned audit.",
+      "manual_checks": "Child of audits; only read through an owned audit."
+    }
   }
 }

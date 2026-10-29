@@ -18,13 +18,18 @@ export interface NavigationState {
   path?: string;
   publicPath?: string;
   threadId?: string;
+  cluster?: string;
+  issue?: string;
+  page?: string;
+  auditId?: string;
 }
 
 export function useNavigationState() {
   useAgentRouteState<NavigationState>({
     browserTabId: TAB_ID,
     requestSource: TAB_ID,
-    getNavigationState: ({ pathname }) => navigationStateForPath(pathname),
+    getNavigationState: ({ pathname, search }) =>
+      navigationStateForPath(pathname, search),
     getCommandPath: commandPathForNavigation,
   });
 }
@@ -62,19 +67,33 @@ function matchesPathPrefix(pathname: string, prefix: string): boolean {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-export function navigationStateForPath(pathname: string): NavigationState {
+export function navigationStateForPath(
+  pathname: string,
+  search = "",
+): NavigationState {
   const threadId = threadIdFromPath(pathname);
+  const params = new URLSearchParams(search);
+  const auditMatch = pathname.match(/^\/(?:workbench|report)\/([^/]+)/);
+  const cluster = params.get("cluster");
+  const issue = params.get("issue");
+  const page = params.get("page");
   return {
     view: viewForPath(pathname),
-    path: pathname,
+    path: `${pathname}${search}`,
     publicPath: appPathFromLocalRoute(pathname),
     ...(threadId ? { threadId } : {}),
+    ...(auditMatch?.[1] ? { auditId: decodeURIComponent(auditMatch[1]) } : {}),
+    ...(cluster ? { cluster } : {}),
+    ...(issue ? { issue } : {}),
+    ...(page ? { page } : {}),
   };
 }
 
 function viewForPath(pathname: string): string {
   if (isChatPathname(pathname)) return "chat";
   if (pathname === HOME_PATH) return "home";
+  if (pathname.startsWith("/workbench")) return "workbench";
+  if (pathname.startsWith("/report")) return "report";
   if (pathname.startsWith("/database")) return "database";
   if (pathname.startsWith("/extensions")) return "extensions";
   if (pathname.startsWith("/observability")) return "observability";
@@ -92,6 +111,9 @@ function pathForView(view?: string): string {
     case "ask":
       return NEW_CHAT_PATH;
     case "home":
+      return HOME_PATH;
+    case "workbench":
+    case "report":
       return HOME_PATH;
     case "database":
       return "/database";
