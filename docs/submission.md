@@ -59,7 +59,7 @@ Clips link must open without a login. Target 2:20–2:40.
 - **Project name:** Unbarred
 - **Tagline:** Find it. Fix it. Prove it.
 - **Track/category:** Grand Prize; Best Use of Agent-Native
-- **Live app:** https://unbarred.fly.dev
+- **Live app:** https://unbarred.fly.dev (create an account, then Audit the demo bakery)
 - **Repository:** _add public repo URL_
 - **Demo video:** _add Clips URL_
 - **Built with:** Agent-Native, Rust (Axum/Tokio), Headless Chrome, axe-core,

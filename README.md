@@ -11,6 +11,9 @@ It is not a scanner with a nicer dashboard, and it is not an overlay. The
 product is the **closed loop**: every fix has an approval, a diff, and a re-scan
 result attached to it.
 
+**Live demo:** <https://unbarred.fly.dev> — create an account, then choose
+**Audit the demo bakery**. No payment or setup.
+
 ![The Unbarred workbench: a queue of patterns, the real page with numbered barrier pins, and a fix inspector](docs/workbench.png)
 
 ---
@@ -89,7 +92,7 @@ Everything in the loop above is implemented and exercised end to end:
   and A2A, with a `needsApproval` gate on approval actions.
 
 The demo fixture (`/fixture/`) is a fictional bakery with deliberate barriers.
-On a stable local server it produces **37 barriers across 3 pages in 9 patterns**;
+On a stable server it produces **37 barriers across 3 pages in 8 baseline patterns**;
 approving all deterministic and judgment fixes takes it to **36 verified, 2 still
 open** (a heading skip and a colour-only link), plus one newly surfaced pattern.
 Those numbers are reproducible with the fixture, not hard-coded.
