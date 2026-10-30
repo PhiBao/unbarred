@@ -117,8 +117,8 @@ fictional Marlow & Rye bakery fixture is original and controlled so the demo is
 reproducible.
 
 During the event I built the Rust audit engine (crawl, CDP, axe, clustering,
-contrast computation, DOM patching, independent re-scan); the SQL schema and 19
-actions; the three-pane workbench with pattern queue, pinned preview, and fix
+contrast computation, DOM patching, independent re-scan); the SQL schema and 17
+domain actions; the three-pane workbench with pattern queue, pinned preview, and fix
 inspector; the human approval gate; the report, sites portfolio, before/after
 compare slider, agent-in-context, manual checks, hash-chained evidence export,
 and implementation pack. The app is deployed to Vercel + Neon, with the engine
