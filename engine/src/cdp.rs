@@ -147,7 +147,7 @@ impl ChromeSession {
 
         let port_file = dir.join("DevToolsActivePort");
         let mut port = None;
-        for _ in 0..100 {
+        for _ in 0..300 {
             if let Ok(contents) = std::fs::read_to_string(&port_file) {
                 if let Some(line) = contents.lines().next() {
                     if let Ok(value) = line.trim().parse::<u16>() {
@@ -255,7 +255,7 @@ impl Drop for ChromeSession {
 
 async fn wait_for_page_socket(port: u16) -> Result<String> {
     let client = reqwest::Client::new();
-    for _ in 0..100 {
+    for _ in 0..300 {
         let response = client
             .get(format!("http://127.0.0.1:{port}/json/list"))
             .timeout(Duration::from_secs(2))

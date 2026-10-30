@@ -76,7 +76,8 @@ Clips link must open without a login. Target 2:20–2:40.
 - Push the repository publicly (if not already).
 - Record and upload the Clips demo.
 - Submit the form under your identity before the deadline.
-- Keep the Fly apps running through judging; the app is set to stay warm.
+- Keep the Fly engine available through judging; it sleeps when idle and wakes on
+  the next audit. The Vercel app and Neon database are on free tiers.
 - Neon's free tier scales to zero and wakes on the next connection; no keepalive
   job is required.
 - Rotate the SandBase key, the Neon/Vercel credentials, and the Fly secrets after

@@ -209,6 +209,25 @@ Environment:
 The deterministic audit loop works **without** an LLM key. The agent chat needs
 one; the app reports the missing provider instead of pretending.
 
+## Hosted deployment
+
+The live app uses three pieces, and only the engine is paid when it runs:
+
+1. **Neon Postgres** (free tier) — create a project, copy the **pooled**
+   connection string, then run `DATABASE_URL=... pnpm migrate:production`.
+2. **Vercel Hobby** — link the project and set `DATABASE_URL`,
+   `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `UNBARRED_ENGINE_URL`,
+   `UNBARRED_ENGINE_SECRET`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, and
+   `AGENT_ENGINE`. Build with `NITRO_PRESET=vercel pnpm build`, then
+   `vercel deploy --prebuilt --prod`.
+3. **Fly engine** — `cd engine && fly deploy --remote-only`, with
+   `ENGINE_SECRET` set as a Fly secret. The app calls the engine's public URL;
+   the engine sleeps when idle and wakes on the next audit.
+
+The framework patch is required for serverless deployments: it enables strict
+tool schemas and forwards the sign-up session cookie that Better Auth creates.
+Do not remove `pnpm.patchedDependencies` or the patch file.
+
 ## Reproduce the demo
 
 1. Run the fixture and the engine as above.
