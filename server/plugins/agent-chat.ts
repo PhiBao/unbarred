@@ -15,6 +15,8 @@ const INITIAL_TOOL_NAMES = [
   "save-fix",
   "approve-fix",
   "start-rescan",
+  "list-sites",
+  "export-code-pack",
 ];
 
 export default createAgentChatPlugin({
@@ -41,6 +43,8 @@ How the product works:
 - save-fix saves a draft. approve-fix is the human checkpoint and is approval-gated; do not try to bypass it.
 - start-rescan and sync-rescan apply the approved fixes to a fresh render and run an independent scan. Only a re-scan can make a fix "verified".
 - export-evidence produces the client-facing JSON and CSV record.
+- export-code-pack turns the verified fixes into implementation-ready CSS/HTML snippets for the client's source. It is not a certificate and does not apply the changes.
+- list-sites is the agency portfolio: latest audit, counts, and open manual checks per site.
 
 Rules:
 - Never say a site is compliant, certified, ADA-proof, or WCAG-conformant. Automated checks cover a subset of WCAG. Say "barriers found", "fixes verified", and "manual checks still open".

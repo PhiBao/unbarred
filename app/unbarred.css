@@ -709,9 +709,10 @@
 }
 .u-canvas-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   padding: 8px 14px;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--background) / 0.9);
@@ -749,9 +750,9 @@
 .u-seg button {
   border: 0;
   background: transparent;
-  padding: 4px 8px;
+  padding: 4px 6px;
   font-family: var(--u-mono);
-  font-size: 9px;
+  font-size: 8.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: hsl(var(--muted-foreground));
@@ -1299,5 +1300,158 @@
   }
   .u-report-disclaimer {
     border-color: #999;
+  }
+}
+
+/* portfolio */
+
+.u-site-row {
+  grid-template-columns: minmax(0, 1fr) 64px 74px 86px 132px 156px;
+}
+.u-site-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.u-site-date {
+  margin-top: 5px;
+  font-family: var(--u-mono);
+  font-size: 9px;
+  color: hsl(var(--muted-foreground));
+}
+
+/* compare */
+
+.u-compare-labels {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  font-family: var(--u-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.55);
+}
+.u-compare-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 5;
+  background: hsl(var(--u-verified));
+  cursor: ew-resize;
+  touch-action: none;
+}
+.u-compare-divider:focus-visible {
+  outline: 2px solid hsl(var(--foreground));
+  outline-offset: 2px;
+}
+.u-compare-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: hsl(var(--u-verified));
+  color: #fff;
+  font-size: 15px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+}
+
+/* implementation pack */
+
+.u-insp-head-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.u-code-card {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  padding: 10px;
+  margin-bottom: 8px;
+}
+.u-code-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.u-code-before {
+  margin-top: 6px;
+  font-family: var(--u-mono);
+  font-size: 9.5px;
+  color: hsl(var(--muted-foreground));
+}
+
+@media (max-width: 1180px) {
+  .u-site-row {
+    grid-template-columns: minmax(0, 1fr) 64px 74px 120px 144px;
+  }
+  .u-site-row > :nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .u-site-row {
+    grid-template-columns: minmax(0, 1fr) 104px;
+  }
+  .u-site-row > :nth-child(2),
+  .u-site-row > :nth-child(3),
+  .u-site-row > :nth-child(4),
+  .u-site-row > :nth-child(5) {
+    display: none;
+  }
+  .u-site-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* When the agent sidebar (or a narrow window) shrinks the workbench, keep the
+   page and inspector usable instead of squeezing three panes. */
+.u-workbench {
+  container-type: inline-size;
+}
+@container (max-width: 1120px) {
+  .u-wb-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .u-wb-title {
+    flex: 1 1 260px;
+  }
+  .u-wb-title h1 {
+    white-space: normal;
+    font-size: 24px;
+  }
+  .u-wb-grid {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+  .u-pane-left {
+    display: none;
+  }
+  .u-wb-metrics {
+    gap: 14px;
+  }
+  .u-wb-actions {
+    flex-wrap: wrap;
   }
 }

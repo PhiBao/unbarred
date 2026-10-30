@@ -3,16 +3,29 @@ import {
   useActionMutation,
   useActionQuery,
 } from "@agent-native/core/client/hooks";
+import { sendToAgentChat } from "@agent-native/core/client/agent-chat";
 import {
   IconArrowLeft,
   IconCheck,
+  IconCode,
+  IconCopy,
   IconDownload,
   IconExternalLink,
+  IconMessage,
   IconRefresh,
   IconX,
 } from "@tabler/icons-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { Link, useParams, useSearchParams } from "react-router";
+import { toast } from "sonner";
+
+import { buildFixCode } from "@/lib/fix-code";
 
 export function meta() {
   return [{ title: "Workbench — Unbarred" }];
@@ -166,9 +179,10 @@ export default function WorkbenchRoute() {
   const manualCheck = useActionMutation("complete-manual-check");
 
   const [pageOverride, setPageOverride] = useState<string | null>(null);
-  const [variant, setVariant] = useState<"before" | "after">("before");
+  const [view, setView] = useState<"before" | "after" | "compare">("before");
   const [showAllPins, setShowAllPins] = useState(false);
   const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const detail = detailQuery.data;
@@ -201,7 +215,7 @@ export default function WorkbenchRoute() {
   }, [selectedIssue?.id, selectedIssue?.pageId]);
 
   useEffect(() => {
-    if (status === "verified") setVariant("after");
+    if (status === "verified") setView("after");
   }, [status]);
 
   // Poll the engine through a writing action; get-audit stays a pure read.
@@ -420,6 +434,20 @@ export default function WorkbenchRoute() {
           >
             Evidence
           </button>
+          <button
+            type="button"
+            className="u-btn"
+            onClick={() => setCodeOpen(true)}
+            disabled={audit.verifiedCount === 0}
+            title={
+              audit.verifiedCount === 0
+                ? "Verify fixes first to build the implementation pack"
+                : "Implementation-ready changes for the verified fixes"
+            }
+          >
+            <IconCode size={13} />
+            Code
+          </button>
           <Link className="u-btn u-btn-ghost" to={`/report/${auditId}`}>
             <IconExternalLink size={13} />
             Report
@@ -509,6 +537,11 @@ export default function WorkbenchRoute() {
               </span>
               <div className="u-check-body">
                 <div className="u-check-label">{check.label}</div>
+                {check.note ? (
+                  <div className="u-note" style={{ marginTop: 2 }}>
+                    {check.note}
+                  </div>
+                ) : null}
                 <div className="u-check-actions">
                   <button
                     type="button"
@@ -527,14 +560,17 @@ export default function WorkbenchRoute() {
                   <button
                     type="button"
                     className="u-btn u-btn-sm u-btn-ghost"
-                    onClick={() =>
+                    onClick={() => {
+                      const note = window.prompt(
+                        "What did you find? (recorded in the evidence pack)",
+                      );
                       run(manualCheck, {
                         auditId,
                         key: check.key,
                         status: "fail",
-                        note: "",
-                      })
-                    }
+                        note: note ?? "",
+                      });
+                    }}
                   >
                     Flag
                   </button>
@@ -590,17 +626,24 @@ export default function WorkbenchRoute() {
                 <div className="u-seg" aria-label="Preview version">
                   <button
                     type="button"
-                    data-active={variant === "before"}
-                    onClick={() => setVariant("before")}
+                    data-active={view === "before"}
+                    onClick={() => setView("before")}
                   >
                     Before
                   </button>
                   <button
                     type="button"
-                    data-active={variant === "after"}
-                    onClick={() => setVariant("after")}
+                    data-active={view === "after"}
+                    onClick={() => setView("after")}
                   >
                     After
+                  </button>
+                  <button
+                    type="button"
+                    data-active={view === "compare"}
+                    onClick={() => setView("compare")}
+                  >
+                    Compare
                   </button>
                 </div>
               ) : null}
@@ -612,7 +655,7 @@ export default function WorkbenchRoute() {
               page={activePage}
               issues={pinIssues}
               activeIssueId={activeIssueId}
-              variant={variant}
+              view={view}
               onSelect={selectIssue}
               scanning={status === "queued" || status === "running" || rescanBusy}
             />
@@ -629,6 +672,7 @@ export default function WorkbenchRoute() {
               key={selectedIssue.id}
               issue={selectedIssue}
               cluster={selectedCluster}
+              auditId={auditId}
               valueFallback={selectedIssue.proposal?.value ?? ""}
               onSave={(value, decorative) =>
                 run(saveFix, {
@@ -668,6 +712,9 @@ export default function WorkbenchRoute() {
       {ledgerOpen ? (
         <Ledger auditId={auditId} onClose={() => setLedgerOpen(false)} />
       ) : null}
+      {codeOpen ? (
+        <CodePack auditId={auditId} onClose={() => setCodeOpen(false)} />
+      ) : null}
     </div>
   );
 }
@@ -676,19 +723,21 @@ function Canvas({
   page,
   issues,
   activeIssueId,
-  variant,
+  view,
   onSelect,
   scanning,
 }: {
   page: Page;
   issues: Issue[];
   activeIssueId?: string | undefined;
-  variant: "before" | "after";
+  view: "before" | "after" | "compare";
   onSelect: (issue: Issue) => void;
   scanning: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const [split, setSplit] = useState(50);
 
   useEffect(() => {
     const node = scrollRef.current;
@@ -703,52 +752,130 @@ function Canvas({
   const scale = width > 0 ? Math.min(1.15, width / 1280) : 0.6;
   const frameWidth = 1280 * scale;
   const frameHeight = page.height * scale;
-  const query = variant === "after" ? "?v=after" : "";
+  const beforeSrc = `/api/snapshot/${page.id}`;
+  const afterSrc = `/api/snapshot/${page.id}?v=after`;
+  const compare = view === "compare";
+
+  const startDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const frame = frameRef.current;
+    if (!frame) return;
+    const move = (moveEvent: PointerEvent) => {
+      const rect = frame.getBoundingClientRect();
+      const next = ((moveEvent.clientX - rect.left) / rect.width) * 100;
+      setSplit(Math.min(96, Math.max(4, next)));
+    };
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
+  };
 
   return (
     <div className="u-canvas-scroll" ref={scrollRef}>
       <div
         className="u-frame-outer"
+        ref={frameRef}
         style={{ width: frameWidth, height: frameHeight }}
       >
-        <iframe
-          key={`${page.id}-${variant}-${page.updatedAt}`}
-          src={`/api/snapshot/${page.id}${query}`}
-          title={`${page.title || page.url} preview`}
-          sandbox=""
-          style={{
-            width: 1280,
-            height: page.height,
-            transform: `scale(${scale})`,
-          }}
-        />
-        <div className="u-pins">
-          {scanning ? <div className="u-scan-line" /> : null}
-          {issues.map((issue, index) => {
-            if (!issue.rect) return null;
-            const verified = issue.status === "verified";
-            const manual = issue.proposal?.needsHuman;
-            return (
-              <button
-                key={issue.id}
-                type="button"
-                className="u-pin"
-                data-active={activeIssueId === issue.id}
-                data-verified={verified}
-                data-manual={!verified && manual}
-                style={{
-                  left: Math.max(8, issue.rect.x * scale),
-                  top: Math.max(8, issue.rect.y * scale),
-                }}
-                title={`${index + 1}. ${issue.help}`}
-                aria-label={`Barrier ${index + 1}: ${issue.help}`}
-                onClick={() => onSelect(issue)}
-              >
-                {index + 1}
-              </button>
-            );
-          })}
-        </div>
+        {compare ? (
+          <>
+            <iframe
+              key={`${page.id}-before-compare-${page.updatedAt}`}
+              src={beforeSrc}
+              title={`${page.title || page.url} before fixes`}
+              sandbox=""
+              style={{
+                width: 1280,
+                height: page.height,
+                transform: `scale(${scale})`,
+              }}
+            />
+            <iframe
+              key={`${page.id}-after-compare-${page.updatedAt}`}
+              src={afterSrc}
+              title={`${page.title || page.url} after fixes`}
+              sandbox=""
+              style={{
+                width: 1280,
+                height: page.height,
+                transform: `scale(${scale})`,
+                clipPath: `inset(0 0 0 ${split}%)`,
+                zIndex: 2,
+              }}
+            />
+            <div className="u-compare-labels" aria-hidden="true">
+              <span>Before</span>
+              <span>After</span>
+            </div>
+            <div
+              className="u-compare-divider"
+              style={{ left: `${split}%` }}
+              role="slider"
+              tabIndex={0}
+              aria-label="Before and after split"
+              aria-valuemin={4}
+              aria-valuemax={96}
+              aria-valuenow={Math.round(split)}
+              onPointerDown={startDrag}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowLeft") {
+                  event.preventDefault();
+                  setSplit((value) => Math.max(4, value - 2));
+                }
+                if (event.key === "ArrowRight") {
+                  event.preventDefault();
+                  setSplit((value) => Math.min(96, value + 2));
+                }
+              }}
+            >
+              <span className="u-compare-handle">↔</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <iframe
+              key={`${page.id}-${view}-${page.updatedAt}`}
+              src={view === "after" ? afterSrc : beforeSrc}
+              title={`${page.title || page.url} preview`}
+              sandbox=""
+              style={{
+                width: 1280,
+                height: page.height,
+                transform: `scale(${scale})`,
+              }}
+            />
+            <div className="u-pins">
+              {scanning ? <div className="u-scan-line" /> : null}
+              {issues.map((issue, index) => {
+                if (!issue.rect) return null;
+                const verified = issue.status === "verified";
+                const manual = issue.proposal?.needsHuman;
+                return (
+                  <button
+                    key={issue.id}
+                    type="button"
+                    className="u-pin"
+                    data-active={activeIssueId === issue.id}
+                    data-verified={verified}
+                    data-manual={!verified && manual}
+                    style={{
+                      left: Math.max(8, issue.rect.x * scale),
+                      top: Math.max(8, issue.rect.y * scale),
+                    }}
+                    title={`${index + 1}. ${issue.help}`}
+                    aria-label={`Barrier ${index + 1}: ${issue.help}`}
+                    onClick={() => onSelect(issue)}
+                  >
+                    {index + 1}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
       <p
         className="u-mono u-muted"
@@ -760,7 +887,9 @@ function Canvas({
           padding: "14px 0 4px",
         }}
       >
-        Rendered at 1280px · preview is inert · {page.height}px tall
+        {compare
+          ? "Drag the divider to compare the rendered page"
+          : `Rendered at 1280px · preview is inert · ${page.height}px tall`}
       </p>
     </div>
   );
@@ -769,6 +898,7 @@ function Canvas({
 function IssueInspector({
   issue,
   cluster,
+  auditId,
   valueFallback,
   onSave,
   onApprove,
@@ -778,6 +908,7 @@ function IssueInspector({
 }: {
   issue: Issue;
   cluster?: Cluster | undefined;
+  auditId: string;
   valueFallback: string;
   onSave: (value: string, decorative: boolean) => void;
   onApprove: (value: string, decorative: boolean) => void;
@@ -803,6 +934,28 @@ function IssueInspector({
   const isRejected = issue.fix?.status === "rejected";
   const isRemaining = issue.status === "remaining";
   const isResolved = issue.status === "resolved";
+  const implementation = isVerified ? buildFixCode(issue) : null;
+  const askAgent = () => {
+    sendToAgentChat({
+      message: `Help me with this barrier: ${issue.help}`,
+      context: `Unbarred audit ${auditId}; page ${issue.pageUrl}; pattern ${issue.ruleId}; barrier ${issue.id}; selector ${issue.selector}. ${
+        issue.proposal?.rationale ?? ""
+      } Draft a fix I can review and approve.`,
+      contextLabel: "Unbarred barrier",
+      openSidebar: true,
+      submit: false,
+      type: "content",
+    });
+  };
+  const copyImplementation = async () => {
+    if (!implementation) return;
+    try {
+      await navigator.clipboard.writeText(implementation.code);
+      toast.success("Implementation copied");
+    } catch {
+      toast.error("Could not copy to the clipboard");
+    }
+  };
   return (
     <div className="u-inspector">
       <div className="u-insp-head">
@@ -812,13 +965,24 @@ function IssueInspector({
           </div>
           <h2 className="u-insp-title">{cluster?.title ?? issue.help}</h2>
         </div>
-        <span
-          className="u-stamp"
-          data-tone={impactTone(issue.impact)}
-          title="Impact as classified by axe"
-        >
-          {IMPACT_LABEL[issue.impact] ?? issue.impact}
-        </span>
+        <div className="u-insp-head-actions">
+          <button
+            type="button"
+            className="u-btn u-btn-sm"
+            onClick={askAgent}
+            title="Ask the agent about this barrier"
+          >
+            <IconMessage size={13} />
+            Ask agent
+          </button>
+          <span
+            className="u-stamp"
+            data-tone={impactTone(issue.impact)}
+            title="Impact as classified by axe"
+          >
+            {IMPACT_LABEL[issue.impact] ?? issue.impact}
+          </span>
+        </div>
       </div>
 
       {isVerified ? (
@@ -829,6 +993,24 @@ function IssueInspector({
               ? `The independent scan stopped reporting this element ${timeAgo(issue.fix.verifiedAt)}.`
               : "The independent scan stopped reporting this element."}
           </div>
+          {implementation ? (
+            <>
+              <div className="u-label" style={{ marginTop: 12 }}>
+                <span>Take this to the source</span>
+                <button
+                  type="button"
+                  className="u-btn u-btn-sm u-btn-ghost"
+                  onClick={copyImplementation}
+                >
+                  <IconCopy size={12} /> Copy
+                </button>
+              </div>
+              <pre className="u-code" style={{ margin: 0 }}>
+                {implementation.code}
+              </pre>
+              <p className="u-note">{implementation.instruction}</p>
+            </>
+          ) : null}
         </div>
       ) : isApproved ? (
         <div className="u-insp-section">
@@ -1062,6 +1244,175 @@ function IssueInspector({
   );
 }
 
+function pageLabel(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return parsed.pathname === "/" ? "/" : parsed.pathname;
+  } catch {
+    return url;
+  }
+}
+
+function CodePack({
+  auditId,
+  onClose,
+}: {
+  auditId: string;
+  onClose: () => void;
+}) {
+  const packQuery = useActionQuery("export-code-pack", { auditId });
+  const pack = packQuery.data;
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const copy = async (value: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`${label} copied`);
+    } catch {
+      toast.error("Could not copy to the clipboard");
+    }
+  };
+
+  const byPage = new Map<string, NonNullable<typeof pack>["changes"]>();
+  for (const change of pack?.changes ?? []) {
+    const list = byPage.get(change.pageUrl) ?? [];
+    list.push(change);
+    byPage.set(change.pageUrl, list);
+  }
+
+  return (
+    <>
+      <div className="u-veil" onClick={onClose} aria-hidden="true" />
+      <aside
+        className="u-ledger"
+        role="dialog"
+        aria-label="Implementation pack"
+      >
+        <div className="u-ledger-head">
+          <div>
+            <div className="u-kicker">Implementation pack</div>
+            <h2>{pack?.site ?? "Verified changes"}</h2>
+            {pack ? (
+              <p
+                className="u-mono u-muted"
+                style={{ fontSize: 9.5, marginTop: 4 }}
+              >
+                {pack.counts.verified} verified · {pack.counts.approved} approved
+                · {pack.counts.remaining} still open
+              </p>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            className="u-btn u-btn-ghost"
+            onClick={onClose}
+            aria-label="Close implementation pack"
+          >
+            <IconX size={16} />
+          </button>
+        </div>
+        <div className="u-ledger-body">
+          <div className="u-export-grid">
+            <button
+              type="button"
+              className="u-btn"
+              disabled={!pack}
+              onClick={() =>
+                pack &&
+                copy(pack.markdown, "Implementation pack")
+              }
+            >
+              <IconCopy size={13} /> Copy all
+            </button>
+            <button
+              type="button"
+              className="u-btn"
+              disabled={!pack}
+              onClick={() =>
+                pack &&
+                download(
+                  `${pack.site.replace(/\s+/g, "-").toLowerCase()}-fix-pack.md`,
+                  pack.markdown,
+                  "text/markdown",
+                )
+              }
+            >
+              <IconDownload size={13} /> Markdown
+            </button>
+            <button
+              type="button"
+              className="u-btn"
+              disabled={!pack}
+              onClick={() =>
+                pack &&
+                download(
+                  `${pack.site.replace(/\s+/g, "-").toLowerCase()}-fix-pack.json`,
+                  pack.json,
+                  "application/json",
+                )
+              }
+            >
+              <IconDownload size={13} /> JSON
+            </button>
+          </div>
+          <p className="u-note">
+            These are the changes the independent re-scan verified. Apply them
+            in the client’s source, then run the project’s tests. Unbarred
+            verified the rendered page, not the build.
+          </p>
+
+          {!pack ? (
+            <p className="u-empty">Building the pack…</p>
+          ) : pack.changes.length === 0 ? (
+            <p className="u-empty">
+              No verified fixes yet. Approve changes and run Verify fixes first.
+            </p>
+          ) : (
+            [...byPage.entries()].map(([pageUrl, changes]) => (
+              <div key={pageUrl}>
+                <div className="u-label" style={{ marginTop: 18 }}>
+                  <span>{pageLabel(pageUrl)}</span>
+                  <span>{changes.length}</span>
+                </div>
+                {changes.map((change) => (
+                  <div className="u-code-card" key={change.issueId}>
+                    <div className="u-code-card-head">
+                      <span>{change.help}</span>
+                      <button
+                        type="button"
+                        className="u-btn u-btn-sm u-btn-ghost"
+                        onClick={() => copy(change.code, "Change")}
+                      >
+                        <IconCopy size={12} /> Copy
+                      </button>
+                    </div>
+                    <div className="u-mono u-muted" style={{ fontSize: 9 }}>
+                      {change.selector}
+                    </div>
+                    <pre className="u-code">{change.code}</pre>
+                    <div className="u-note">{change.instruction}</div>
+                    <div className="u-code-before">
+                      {change.before ? `${change.before} → ` : ""}
+                      {change.after}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
+        </div>
+      </aside>
+    </>
+  );
+}
+
 function Ledger({ auditId, onClose }: { auditId: string; onClose: () => void }) {
   const detailQuery = useActionQuery("get-audit", { auditId });
   const exportQuery = useActionQuery("export-evidence", { auditId });
@@ -1141,6 +1492,15 @@ function Ledger({ auditId, onClose }: { auditId: string; onClose: () => void }) 
             timestamp. The JSON pack includes the axe version and the
             disclaimer.
           </p>
+          {exportQuery.data?.ledgerHead ? (
+            <p className="u-note" style={{ marginTop: 0 }}>
+              Ledger head{" "}
+              <code className="u-mono" style={{ fontSize: 9 }}>
+                {exportQuery.data.ledgerHead.slice(0, 16)}…
+              </code>{" "}
+              — each entry is chained to the one before it.
+            </p>
+          ) : null}
 
           {evidence.length === 0 ? (
             <p className="u-empty">No ledger entries yet.</p>

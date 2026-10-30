@@ -74,7 +74,9 @@ Sources: [WebAIM Million 2026](https://webaim.org/projects/million/),
 4. **Prove it.** Approved fixes are applied to a fresh render and scanned again.
    The result is recorded per element: verified, still open, or resolved without
    an approved fix. A ledger records every approval and re-scan with actor and
-   timestamp. The evidence pack exports as JSON and CSV.
+   timestamp. The evidence pack exports as JSON and CSV, and the implementation
+   pack turns each verified fix into a reviewable CSS/HTML change for the client's
+   source.
 
 ## What is real
 
@@ -88,7 +90,12 @@ Everything in the loop above is implemented and exercised end to end:
   patches (`set-attr`, `set-text`, `set-style`).
 - A real independent re-scan that only marks a fix verified when the rule stops
   reporting that element.
-- A real evidence ledger, JSON/CSV export, and printable report.
+- A real evidence ledger, JSON/CSV export, and printable report, with a SHA-256
+  chain over the ledger so an export is tamper-evident.
+- A reviewable implementation pack: verified fixes become CSS/HTML changes with
+  before/after values, selectors, and instructions — ready to carry into a repo.
+- A before/after compare slider on the rendered page, and a portfolio view across
+  client sites with re-audit.
 - Real Agent-Native actions shared by the UI, the in-app agent, HTTP, MCP, CLI,
   and A2A, with a `needsApproval` gate on approval actions.
 
@@ -261,6 +268,7 @@ The same actions power every surface:
 | Context | The workbench writes the selected cluster/issue into navigation state; `view-screen` reads it |
 | MCP / A2A / CLI | `pnpm action get-audit --auditId <id>` and the auto-mounted MCP server |
 | Live sync | Mutations invalidate action queries; the workbench polls a writing action, not a read |
+| In-context agent | **Ask agent** in the inspector opens the sidebar with the selected barrier and audit context pre-filled |
 
 Actions:
 
@@ -279,7 +287,9 @@ Actions:
 | `start-rescan` | Apply approved fixes and start the independent scan |
 | `sync-rescan` | Record verified / failed / new findings |
 | `complete-manual-check` | Record a manual pass or flag |
-| `export-evidence` | Build the JSON + CSV pack |
+| `export-evidence` | Build the JSON + CSV evidence pack with a hash-chained ledger |
+| `export-code-pack` | Turn verified fixes into CSS/HTML changes and a Markdown/JSON pack |
+| `list-sites` | Agency portfolio with latest audit and counts per site |
 | `get-dashboard` | Workspace totals |
 
 ## Data model

@@ -92,6 +92,7 @@ export function navigationStateForPath(
 function viewForPath(pathname: string): string {
   if (isChatPathname(pathname)) return "chat";
   if (pathname === HOME_PATH) return "home";
+  if (pathname.startsWith("/sites")) return "sites";
   if (pathname.startsWith("/workbench")) return "workbench";
   if (pathname.startsWith("/report")) return "report";
   if (pathname.startsWith("/database")) return "database";
@@ -112,6 +113,8 @@ function pathForView(view?: string): string {
       return NEW_CHAT_PATH;
     case "home":
       return HOME_PATH;
+    case "sites":
+      return "/sites";
     case "workbench":
     case "report":
       return HOME_PATH;

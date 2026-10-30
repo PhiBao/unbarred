@@ -25,13 +25,14 @@ For custom branding, keep `server/plugins/agent-native-email-branding.ts` aligne
 ## Unbarred domain
 
 - **Home / Inspections** — `app/routes/home.tsx` at `/home`: URL intake, recent audits, method.
-- **Workbench** — `app/routes/workbench.$auditId.tsx` at `/workbench/:auditId`: three panes (pattern queue, pinned page preview, fix inspector), manual checks, evidence drawer. Selection lives in `?cluster=&issue=&page=` so the agent can read it via `view-screen`.
+- **Workbench** — `app/routes/workbench.$auditId.tsx` at `/workbench/:auditId`: three panes (pattern queue, pinned page preview, fix inspector), manual checks, evidence drawer, implementation pack, and a before/after compare slider. Selection lives in `?cluster=&issue=&page=` so the agent can read it via `view-screen`. **Ask agent** opens the sidebar with the selected barrier context.
 - **Evidence report** — `app/routes/report.$auditId.tsx` at `/report/:auditId`: printable client-facing record with JSON/CSV downloads.
+- **Sites** — `app/routes/sites.tsx` at `/sites`: portfolio of client sites, latest audit counts, open manual checks, and re-audit.
 - **Preview route** — `server/routes/api/snapshot/[pageId].get.ts`: inert stored snapshot, session + owner scoped, sandbox CSP, scripts stripped.
 - **Engine** — `engine/` (Rust/Axum). Owns crawl, headless Chrome, pinned axe-core, clustering, DOM patching, and independent re-scan. Contract: `POST /v1/audits`, `GET /v1/audits/:id`, `POST /v1/rescans`, `GET /v1/rescans/:id`, bearer `ENGINE_SECRET`. The app persists every result; the engine is a cache and never the system of record.
 - **Data** — `server/db/schema.ts`: `projects → audits → pages → issues → fixes`, plus `clusters`, `evidence`, `manual_checks`. Snapshots are capped text; scripts stripped at capture.
-- **Invariants** — never claim compliance/certification; only a re-scan can mark a fix `verified`; a disappeared issue is `resolved`, not `verified`, unless it had an approved fix; approval actions stay `needsApproval`; every read is scoped by `ctx.userEmail` through the audit owner.
-- **Primary actions** — `start-audit`, `sync-audit`, `get-audit`, `list-issues`, `save-fix`, `approve-fix`, `approve-cluster`, `start-rescan`, `sync-rescan`, `export-evidence`, `record manual checks` via `complete-manual-check`.
+- **Invariants** — never claim compliance/certification; only a re-scan can mark a fix `verified`; a disappeared issue is `resolved`, not `verified`, unless it had an approved fix; approval actions stay `needsApproval`; every read is scoped by `ctx.userEmail` through the audit owner; the implementation pack contains only verified fixes and is not a certificate.
+- **Primary actions** — `start-audit`, `sync-audit`, `get-audit`, `list-issues`, `save-fix`, `approve-fix`, `approve-cluster`, `start-rescan`, `sync-rescan`, `export-evidence`, `export-code-pack`, `list-sites`, `record manual checks` via `complete-manual-check`.
 - **Demo fixture** — `public/fixture/` (fictional Marlow & Rye bakery) with deliberate barriers. Dev engine may set `ALLOW_PRIVATE_URLS=1`; production must not.
 - **Framework patch** — `patches/@agent-native__core@0.222.1.patch` sets tool `strict: true` so OpenAI-compatible gateways stream tool arguments the AI SDK can assemble, and forwards the sign-up session cookie on serverless hosts. Keep `pnpm.patchedDependencies` intact.
 

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { defineAction, fail } from "@agent-native/core/action";
 import { z } from "zod";
 
@@ -20,6 +22,7 @@ export default defineAction({
   outputSchema: z.object({
     json: z.string(),
     csv: z.string(),
+    ledgerHead: z.string(),
     summary: z.object({
       auditId: z.string(),
       site: z.string(),
@@ -43,6 +46,25 @@ export default defineAction({
     }
 
     const generatedAt = new Date().toISOString();
+    let previousHash = "0".repeat(64);
+    const chainedLedger = [...detail.evidence].reverse().map((event) => {
+      const hash = createHash("sha256")
+        .update(
+          [
+            previousHash,
+            event.id,
+            event.type,
+            event.createdAt,
+            event.actor,
+            event.summary,
+          ].join("|"),
+        )
+        .digest("hex");
+      const entry = { ...event, prevHash: previousHash, hash };
+      previousHash = hash;
+      return entry;
+    });
+    const ledgerHead = previousHash;
     const report = {
       product: "Unbarred",
       generatedAt,
@@ -72,7 +94,8 @@ export default defineAction({
             }
           : null,
       })),
-      ledger: detail.evidence,
+      ledger: chainedLedger,
+      ledgerHead,
     };
 
     const header = [
@@ -112,6 +135,7 @@ export default defineAction({
     return {
       json: JSON.stringify(report, null, 2),
       csv,
+      ledgerHead,
       summary: {
         auditId,
         site: detail.audit.projectName,
