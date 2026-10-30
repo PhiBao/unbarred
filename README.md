@@ -15,6 +15,9 @@ result attached to it.
 **Audit the demo bakery**. No payment or setup. The app runs on Vercel; the
 database is Neon Postgres; the audit engine is a private Fly machine.
 
+**Demo recording:** <https://unbarred-demo.vercel.app> · **Slides:**
+<https://unbarred-slides.vercel.app/s/unbarred>
+
 ![The Unbarred workbench: a queue of patterns, the real page with numbered barrier pins, and a fix inspector](docs/workbench.png)
 
 ---
@@ -239,7 +242,7 @@ Do not remove `pnpm.patchedDependencies` or the patch file.
 
 1. Run the fixture and the engine as above.
 2. Start a baseline audit of `/fixture/` with `maxPages=3`.
-3. The workbench shows **37 barriers in 9 patterns** across `/`, `/menu.html`,
+3. The workbench shows **37 barriers in 8 patterns** across `/`, `/menu.html`,
    and `/contact.html`.
 4. Approve **Low contrast text** with one click (21 computed fixes), then review
    the five judgment patterns. The agent can draft alt text; a person approves it.
