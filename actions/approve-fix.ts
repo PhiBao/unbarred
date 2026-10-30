@@ -46,37 +46,66 @@ export default defineAction({
       .from(fixes)
       .where(eq(fixes.issueId, issueId))
       .limit(1);
-    if (!existing) {
-      fail("Save a proposed fix before approving it.", {
+    const proposal = issue.proposal;
+    if (!existing && !proposal) {
+      fail("This barrier has no proposed fix to approve.", {
         errorCode: "fix_not_found",
       });
     }
 
-    const nextValue = value === undefined ? existing.value : value;
+    // Approving a proposal is the human decision; requiring a separate save
+    // first makes the button fail for every judgment fix. Materialize the
+    // proposal here when no draft exists.
+    const nextKind = existing?.kind ?? proposal!.kind;
+    const nextValue =
+      value === undefined ? (existing?.value ?? proposal?.value ?? "") : value;
     const nextDecorative =
-      decorative === undefined ? existing.decorative : decorative;
-    const emptyAllowed = existing.kind === "alt" && nextDecorative;
+      decorative === undefined
+        ? (existing?.decorative ?? false)
+        : decorative;
+    const emptyAllowed = nextKind === "alt" && nextDecorative;
     if (!emptyAllowed && !nextValue.trim()) {
       fail(
-        existing.kind === "alt"
+        nextKind === "alt"
           ? "Write the alt text, or mark the image as decorative."
           : "This fix needs a value before it can be approved.",
         { errorCode: "missing_value" },
       );
     }
 
-    await db
-      .update(fixes)
-      .set({
+    if (existing) {
+      await db
+        .update(fixes)
+        .set({
+          value: nextValue,
+          decorative: nextDecorative,
+          status: "approved",
+          approvedBy: email,
+          approvedAt: nowIso(),
+          verifiedAt: null,
+          reason: "",
+        })
+        .where(eq(fixes.id, existing.id));
+    } else {
+      await db.insert(fixes).values({
+        id: newId(),
+        auditId: issue.auditId,
+        issueId,
+        kind: proposal!.kind,
+        selector: issue.selector,
+        op: proposal!.op,
+        name: proposal!.name,
         value: nextValue,
         decorative: nextDecorative,
         status: "approved",
+        note: "",
+        reason: "",
         approvedBy: email,
+        createdAt: nowIso(),
         approvedAt: nowIso(),
         verifiedAt: null,
-        reason: "",
-      })
-      .where(eq(fixes.id, existing.id));
+      });
+    }
     await db
       .update(issues)
       .set({ status: "approved" })
@@ -100,7 +129,7 @@ export default defineAction({
     const [saved] = await db
       .select()
       .from(fixes)
-      .where(eq(fixes.id, existing.id));
+      .where(eq(fixes.issueId, issueId));
     if (!saved) {
       fail("The fix could not be approved.", { errorCode: "save_failed" });
     }
