@@ -143,5 +143,5 @@ export default runMigrations(
       `,
     },
   ],
-  { table: "unbarred_migrations" },
+  { table: "unbarred_migrations", runInServerlessRequest: false },
 );

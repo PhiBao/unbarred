@@ -47,3 +47,4 @@ engine/target/
 
 # Supabase CLI local state
 supabase/.temp/
+.vercel
