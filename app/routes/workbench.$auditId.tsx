@@ -280,6 +280,12 @@ export default function WorkbenchRoute() {
   ) => {
     setActionError(null);
     mutation.mutate(payload, {
+      onSuccess: () => {
+        // The header counts and the issue statuses both come from reads; a
+        // write must refresh them or the decision looks like it did nothing.
+        void detailQuery.refetch();
+        void issuesQuery.refetch();
+      },
       onError: (error: unknown) =>
         setActionError(
           actionErrorMessage(error) ?? "That action could not be completed.",
