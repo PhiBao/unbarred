@@ -11,9 +11,9 @@ It is not a scanner with a nicer dashboard, and it is not an overlay. The
 product is the **closed loop**: every fix has an approval, a diff, and a re-scan
 result attached to it.
 
-**Live demo:** <https://unbarred.fly.dev> — create an account, then choose
-**Audit the demo bakery**. No payment or setup. The app runs on Fly.io; the
-database is Supabase Postgres; the audit engine is a private Fly machine.
+**Live demo:** <https://unbarred-black.vercel.app> — create an account, then choose
+**Audit the demo bakery**. No payment or setup. The app runs on Vercel; the
+database is Neon Postgres; the audit engine is a private Fly machine.
 
 ![The Unbarred workbench: a queue of patterns, the real page with numbered barrier pins, and a fix inspector](docs/workbench.png)
 
@@ -157,8 +157,10 @@ keeps the transport stable across Chrome releases. There is a small compatibilit
 patch (`patches/@agent-native__core@0.222.1.patch`) that sends tool schemas with
 `strict: true`: the OpenAI-compatible gateway used for the demo otherwise
 streams valid tool arguments that the AI SDK discards, leaving every tool call
-with `{}`. The patch is applied by `pnpm install` and documented here rather than
-hidden.
+with `{}`. The same patch forwards the session cookie Better Auth creates during
+sign-up on serverless hosts, where the framework's register route otherwise
+returns `{ok:true}` without a browser session. The patch is applied by
+`pnpm install` and documented here rather than hidden.
 
 ## Run it locally
 

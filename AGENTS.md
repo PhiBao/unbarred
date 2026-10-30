@@ -33,7 +33,7 @@ For custom branding, keep `server/plugins/agent-native-email-branding.ts` aligne
 - **Invariants** — never claim compliance/certification; only a re-scan can mark a fix `verified`; a disappeared issue is `resolved`, not `verified`, unless it had an approved fix; approval actions stay `needsApproval`; every read is scoped by `ctx.userEmail` through the audit owner.
 - **Primary actions** — `start-audit`, `sync-audit`, `get-audit`, `list-issues`, `save-fix`, `approve-fix`, `approve-cluster`, `start-rescan`, `sync-rescan`, `export-evidence`, `record manual checks` via `complete-manual-check`.
 - **Demo fixture** — `public/fixture/` (fictional Marlow & Rye bakery) with deliberate barriers. Dev engine may set `ALLOW_PRIVATE_URLS=1`; production must not.
-- **Framework patch** — `patches/@agent-native__core@0.222.1.patch` sets tool `strict: true` so OpenAI-compatible gateways stream tool arguments the AI SDK can assemble. Keep `pnpm.patchedDependencies` intact.
+- **Framework patch** — `patches/@agent-native__core@0.222.1.patch` sets tool `strict: true` so OpenAI-compatible gateways stream tool arguments the AI SDK can assemble, and forwards the sign-up session cookie on serverless hosts. Keep `pnpm.patchedDependencies` intact.
 
 ## Building a domain app
 

@@ -11,3 +11,39 @@ index d25ab03c91cd597941745231153e02710479cf9f..61acad572a4ae0ab43662c729cce2f89
          };
      }
      return result;
+diff --git a/dist/server/auth.js b/dist/server/auth.js
+index 6dc81c83986f53aaa1fc18cea82a8fb13a7efe2c..df9d7e34c3986ac7c3b4e2524ac9533401b64c32 100644
+--- a/dist/server/auth.js
++++ b/dist/server/auth.js
+@@ -73,7 +73,7 @@ import { addSignupAttributionHeader, readAnalyticsAnonymousId, readAnalyticsSess
+ import { getAuthLoginMode } from "./auth-login-mode.js";
+ import { markBearerCredentialRefused, respondBearerCredentialRefused, } from "./bearer-credential-refusal.js";
+ import { injectBetaOptOutPersistence } from "./beta-opt-out-html.js";
+-import { createBetterAuthSessionForEmail, ensureGoogleAuthIdentity, getBetterAuthInternalAdapter, getBetterAuthUserIdForEmail, getAuthSecret, getBetterAuth, getBetterAuthSync, isDeployPreview, } from "./better-auth-instance.js";
++import { createBetterAuthSessionForEmail, ensureGoogleAuthIdentity, getBetterAuthInternalAdapter, getBetterAuthUserIdForEmail, getAuthSecret, getBetterAuth, getBetterAuthSync, isDeployPreview, setBetterAuthSessionCookie, } from "./better-auth-instance.js";
+ import { BUILDER_CONNECT_PARAM, BUILDER_RELAY_PATH, BUILDER_RELAY_STATE_PARAM, verifyBuilderConnectTokenAndGetOwner, verifyBuilderPreviewRelayStateForCallback, } from "./builder-browser.js";
+ import { frameworkSessionHintCookieName, resolveAuthCookieNamespace, } from "./cookie-namespace.js";
+ import { getAllowedCorsOrigin, readCorsAllowedOrigins, } from "./cors-origins.js";
+@@ -5472,7 +5472,7 @@ async function mountBetterAuthRoutes(app, options) {
+             return { error: authProviderRequiredMessage(requiredProvider) };
+         }
+         try {
+-            await withSignupAttributionContext(getHeader(event, "cookie") ?? null, () => auth.api.signUpEmail({
++            const signupResult = await withSignupAttributionContext(getHeader(event, "cookie") ?? null, () => auth.api.signUpEmail({
+                 body: {
+                     email,
+                     password,
+@@ -5480,7 +5480,13 @@ async function mountBetterAuthRoutes(app, options) {
+                     callbackURL,
+                 },
+                 headers: headersWithSignupAttribution(event.headers, getHeader(event, "cookie") ?? null),
++                returnHeaders: true,
+             }));
++            forwardBetterAuthSetCookies(event, signupResult);
++            const signupSession = await createBetterAuthSessionForEmail(email);
++            if (signupSession?.token) {
++                await setBetterAuthSessionCookie(event, signupSession.token);
++            }
+             setFirstRunOnboardingCookie(event);
+             return { ok: true };
+         }

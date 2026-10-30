@@ -7,13 +7,13 @@ Submit at <https://www.builder.io/hackathon/submit>.
 
 | Piece | URL |
 | --- | --- |
-| App | https://unbarred.fly.dev |
+| App | https://unbarred-black.vercel.app |
 | Audit engine | https://unbarred-engine.fly.dev (bearer-authenticated; not for public use) |
-| Database | Supabase project `soozhwzhdvvqeeanwgwo`, `eu-west-2` (session pooler) |
+| Database | Neon project `rough-hall-24254953`, `aws-eu-west-2` (pooled connection) |
 | Repository | _add the public GitHub URL after pushing_ |
 | Clips demo | _record and add the public Clips URL_ |
 
-The app runs on Fly.io (`lhr`) with Supabase Postgres (`eu-west-2`). The engine
+The app runs on Vercel Hobby with Neon Postgres (`aws-eu-west-2`). The engine
 runs on a separate 1 GB Fly machine with Debian Chromium and the pinned
 axe-core build.
 The app reaches the engine over Fly's private network; the engine's public URL
@@ -61,11 +61,11 @@ Clips link must open without a login. Target 2:20–2:40.
 - **Project name:** Unbarred
 - **Tagline:** Find it. Fix it. Prove it.
 - **Track/category:** Grand Prize; Best Use of Agent-Native
-- **Live app:** https://unbarred.fly.dev (create an account, then Audit the demo bakery)
+- **Live app:** https://unbarred-black.vercel.app (create an account, then Audit the demo bakery)
 - **Repository:** _add public repo URL_
 - **Demo video:** _add Clips URL_
 - **Built with:** Agent-Native, Rust (Axum/Tokio), Headless Chrome, axe-core,
-  PostgreSQL, Fly.io
+  Neon Postgres, Vercel, Fly.io (audit engine)
 - **Disclosures:** axe-core is pre-existing open source; the Chat starter is the
   Agent-Native template. The framework patch for `strict: true` is documented
   in the README. No mocked audit results are used in the demo.
@@ -77,8 +77,7 @@ Clips link must open without a login. Target 2:20–2:40.
 - Record and upload the Clips demo.
 - Submit the form under your identity before the deadline.
 - Keep the Fly apps running through judging; the app is set to stay warm.
-- Supabase's free tier pauses after a week without activity. Keep the app warm
-  with a simple uptime ping (for example UptimeRobot on `/home`) through judging,
-  or upgrade the project if you plan to leave it running longer.
-- Rotate the SandBase key, the Supabase access token, and the Fly secrets after
+- Neon's free tier scales to zero and wakes on the next connection; no keepalive
+  job is required.
+- Rotate the SandBase key, the Neon/Vercel credentials, and the Fly secrets after
   judging if desired.

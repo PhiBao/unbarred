@@ -132,7 +132,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         authorization: `Bearer ${ENGINE_SECRET()}`,
         ...(init?.headers ?? {}),
       },
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(30_000),
     });
   } catch {
     throw new EngineError(
