@@ -9,11 +9,13 @@ Submit at <https://www.builder.io/hackathon/submit>.
 | --- | --- |
 | App | https://unbarred.fly.dev |
 | Audit engine | https://unbarred-engine.fly.dev (bearer-authenticated; not for public use) |
+| Database | Supabase project `soozhwzhdvvqeeanwgwo`, `eu-west-2` (session pooler) |
 | Repository | _add the public GitHub URL after pushing_ |
 | Clips demo | _record and add the public Clips URL_ |
 
-The app runs on Fly.io (`lhr`) with a Fly Postgres database. The engine runs on a
-separate 1 GB Fly machine with Debian Chromium and the pinned axe-core build.
+The app runs on Fly.io (`lhr`) with Supabase Postgres (`eu-west-2`). The engine
+runs on a separate 1 GB Fly machine with Debian Chromium and the pinned
+axe-core build.
 The app reaches the engine over Fly's private network; the engine's public URL
 rejects requests without the bearer secret.
 
@@ -75,4 +77,8 @@ Clips link must open without a login. Target 2:20–2:40.
 - Record and upload the Clips demo.
 - Submit the form under your identity before the deadline.
 - Keep the Fly apps running through judging; the app is set to stay warm.
-- Rotate the SandBase key and the Fly secrets after judging if desired.
+- Supabase's free tier pauses after a week without activity. Keep the app warm
+  with a simple uptime ping (for example UptimeRobot on `/home`) through judging,
+  or upgrade the project if you plan to leave it running longer.
+- Rotate the SandBase key, the Supabase access token, and the Fly secrets after
+  judging if desired.
