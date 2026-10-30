@@ -44,3 +44,6 @@ data/*.lock
 
 # Rust engine build artifacts
 engine/target/
+
+# Supabase CLI local state
+supabase/.temp/
